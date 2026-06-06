@@ -45,6 +45,9 @@ workflows:
       - name: Install dependencies
         script: flutter pub get
 
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
+
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign \
@@ -106,7 +109,7 @@ workflows:
       - name: Set up Android keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
-          cat >> android/key.properties << EOF
+          cat > android/key.properties << EOF
           storePassword=$CM_STORE_PASSWORD
           keyPassword=$CM_KEY_PASSWORD
           keyAlias=$CM_KEY_ALIAS
@@ -115,6 +118,9 @@ workflows:
 
       - name: Install dependencies
         script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
 
       - name: Build AAB
         script: |
@@ -140,10 +146,60 @@ workflows:
           failure: true
 
   # ───────────────────────────────────────────────────────────────────
+  # Web Release → build artifact (deploy manually or via hosting)
+  # ───────────────────────────────────────────────────────────────────
+  web-release:
+    name: Web Release
+    max_build_duration: 30
+    instance_type: linux_x2
+
+    environment:
+      flutter: stable
+      groups:
+        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+
+    scripts:
+      - name: Create .env file
+        script: |
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
+
+      - name: Build Web
+        script: |
+          flutter build web --release \
+            --web-renderer canvaskit \
+            --build-name=$(echo $CM_TAG | sed 's/v//') \
+            --build-number=$PROJECT_BUILD_NUMBER
+
+    artifacts:
+      - build/web/**
+
+    publishing:
+      email:
+        recipients:
+          - cmdelemine@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # ───────────────────────────────────────────────────────────────────
   # Development build — manual trigger for testing
   # ───────────────────────────────────────────────────────────────────
   dev-build:
-    name: Dev Build (iOS + Android)
+    name: Dev Build (iOS + Android + Web)
     max_build_duration: 45
     instance_type: mac_mini_m2
 
@@ -172,5 +228,9 @@ workflows:
       - name: Build Android APK
         script: flutter build apk --debug
 
+      - name: Build Web
+        script: flutter build web --debug
+
     artifacts:
       - build/app/outputs/flutter-apk/app-debug.apk
+      - build/web/**

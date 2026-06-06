@@ -48,5 +48,12 @@ app.*.map.json
 /android/app/profile
 /android/app/release
 
+# Android release signing — never commit keystore or credentials
+android/key.properties
+android/*.jks
+android/*.keystore
+*.jks
+*.keystore
+
 # Claude Code local config
 .claude/

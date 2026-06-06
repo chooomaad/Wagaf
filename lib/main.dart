@@ -30,10 +30,19 @@ void main() async {
   // French locale for date formatting
   await initializeDateFormatting('fr');
 
-  // Supabase
+  // Supabase — validate required env vars before use
+  final supabaseUrl = dotenv.env['SUPABASE_URL'];
+  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
+  if (supabaseUrl == null || supabaseUrl.isEmpty) {
+    throw StateError('SUPABASE_URL is missing from .env');
+  }
+  if (supabaseAnonKey == null || supabaseAnonKey.isEmpty) {
+    throw StateError('SUPABASE_ANON_KEY is missing from .env');
+  }
+
   await Supabase.initialize(
-    url: dotenv.env['SUPABASE_URL']!,
-    publishableKey: dotenv.env['SUPABASE_ANON_KEY']!,
+    url: supabaseUrl,
+    publishableKey: supabaseAnonKey,
     realtimeClientOptions: const RealtimeClientOptions(
       logLevel: RealtimeLogLevel.info,
     ),
