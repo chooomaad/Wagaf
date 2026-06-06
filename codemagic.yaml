@@ -30,8 +30,10 @@ workflows:
     scripts:
       - name: Create .env file
         script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+          printf "SUPABASE_URL=%s
+SUPABASE_ANON_KEY=%s
+" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+
 
       - name: Set up code signing
         script: |
@@ -103,8 +105,10 @@ workflows:
     scripts:
       - name: Create .env file
         script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+          printf "SUPABASE_URL=%s
+SUPABASE_ANON_KEY=%s
+" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+
 
       - name: Set up Android keystore
         script: |
@@ -168,8 +172,10 @@ workflows:
     scripts:
       - name: Create .env file
         script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+          printf "SUPABASE_URL=%s
+SUPABASE_ANON_KEY=%s
+" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+
 
       - name: Install dependencies
         script: flutter pub get
@@ -213,8 +219,10 @@ workflows:
     scripts:
       - name: Create .env file
         script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+          printf "SUPABASE_URL=%s
+SUPABASE_ANON_KEY=%s
+" "$SUPABASE_URL" "$SUPABASE_ANON_KEY" > .env
+
 
       - name: Install dependencies
         script: flutter pub get
