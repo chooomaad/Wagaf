@@ -23,6 +23,7 @@ android {
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_11
         targetCompatibility = JavaVersion.VERSION_11
+        isCoreLibraryDesugaringEnabled = true
     }
 
     kotlinOptions {
@@ -50,8 +51,6 @@ android {
 
     buildTypes {
         release {
-            // Uses release keystore when key.properties exists (CI/CD),
-            // falls back to debug signing for local development.
             signingConfig = if (hasKeystore) {
                 signingConfigs.getByName("release")
             } else {
@@ -59,6 +58,10 @@ android {
             }
         }
     }
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }
 
 flutter {
