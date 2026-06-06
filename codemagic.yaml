@@ -1,0 +1,176 @@
+workflows:
+
+  # ───────────────────────────────────────────────────────────────────
+  # iOS Release → App Store Connect
+  # ───────────────────────────────────────────────────────────────────
+  ios-release:
+    name: iOS Release
+    max_build_duration: 60
+    instance_type: mac_mini_m2
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - app_store_credentials   # APPLE_ID, APP_SPECIFIC_PASSWORD, APP_STORE_APPLE_ID
+        - supabase_credentials    # SUPABASE_URL, SUPABASE_ANON_KEY
+      vars:
+        BUNDLE_ID: com.sh7anly.app
+        XCODE_WORKSPACE: ios/Runner.xcworkspace
+        XCODE_SCHEME: Runner
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+
+    scripts:
+      - name: Create .env file
+        script: |
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
+      - name: Set up code signing
+        script: |
+          keychain initialize
+          app-store-connect fetch-signing-files "$BUNDLE_ID" \
+            --type IOS_APP_STORE \
+            --create
+          keychain add-certificates
+          xcode-project use-profiles
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Build iOS
+        script: |
+          flutter build ios --release --no-codesign \
+            --build-name=$(echo $CM_TAG | sed 's/v//') \
+            --build-number=$PROJECT_BUILD_NUMBER
+
+      - name: Build IPA
+        script: |
+          xcode-project build-ipa \
+            --workspace "$XCODE_WORKSPACE" \
+            --scheme "$XCODE_SCHEME"
+
+    artifacts:
+      - build/ios/ipa/*.ipa
+      - /tmp/xcodebuild_logs/*.log
+      - flutter_drive.log
+
+    publishing:
+      app_store_connect:
+        auth: integration
+        submit_to_testflight: true
+        submit_to_app_store: false   # Set to true when ready for public release
+
+      email:
+        recipients:
+          - cmdelemine@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # ───────────────────────────────────────────────────────────────────
+  # Android Release → Google Play
+  # ───────────────────────────────────────────────────────────────────
+  android-release:
+    name: Android Release
+    max_build_duration: 60
+    instance_type: linux_x2
+
+    environment:
+      flutter: stable
+      groups:
+        - google_play_credentials   # GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        - keystore_credentials      # CM_KEYSTORE, CM_KEY_ALIAS, CM_KEY_PASSWORD, CM_STORE_PASSWORD
+        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
+
+    triggering:
+      events:
+        - tag
+      tag_patterns:
+        - pattern: 'v*'
+          include: true
+
+    scripts:
+      - name: Create .env file
+        script: |
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
+      - name: Set up Android keystore
+        script: |
+          echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
+          cat >> android/key.properties << EOF
+          storePassword=$CM_STORE_PASSWORD
+          keyPassword=$CM_KEY_PASSWORD
+          keyAlias=$CM_KEY_ALIAS
+          storeFile=/tmp/keystore.jks
+          EOF
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Build AAB
+        script: |
+          flutter build appbundle --release \
+            --build-name=$(echo $CM_TAG | sed 's/v//') \
+            --build-number=$PROJECT_BUILD_NUMBER
+
+    artifacts:
+      - build/**/outputs/**/*.aab
+      - build/**/outputs/**/mapping.txt
+      - flutter_drive.log
+
+    publishing:
+      google_play:
+        credentials: $GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
+        track: internal
+
+      email:
+        recipients:
+          - cmdelemine@gmail.com
+        notify:
+          success: true
+          failure: true
+
+  # ───────────────────────────────────────────────────────────────────
+  # Development build — manual trigger for testing
+  # ───────────────────────────────────────────────────────────────────
+  dev-build:
+    name: Dev Build (iOS + Android)
+    max_build_duration: 45
+    instance_type: mac_mini_m2
+
+    environment:
+      flutter: stable
+      xcode: latest
+      cocoapods: default
+      groups:
+        - supabase_credentials
+
+    scripts:
+      - name: Create .env file
+        script: |
+          echo "SUPABASE_URL=$SUPABASE_URL" > .env
+          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
+
+      - name: Install dependencies
+        script: flutter pub get
+
+      - name: Analyze
+        script: flutter analyze --no-fatal-infos
+
+      - name: Build iOS (no signing)
+        script: flutter build ios --debug --no-codesign
+
+      - name: Build Android APK
+        script: flutter build apk --debug
+
+    artifacts:
+      - build/app/outputs/flutter-apk/app-debug.apk

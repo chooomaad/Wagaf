@@ -1,0 +1,6 @@
+CFBundleDisplayName = "وگاف";
+CFBundleName = "وگاف";
+NSCameraUsageDescription = "وگاف يستخدم الكاميرا لالتقاط صور المنتجات.";
+NSPhotoLibraryUsageDescription = "وگاف يصل إلى معرض الصور لإرفاق صور المنتجات.";
+NSPhotoLibraryAddUsageDescription = "وگاف يمكنه حفظ الصور في معرضك.";
+NSMicrophoneUsageDescription = "وگاف يستخدم الميكروفون للرسائل الصوتية.";

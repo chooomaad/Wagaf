@@ -1,0 +1,106 @@
+name: sh7anly
+description: Wagaf — Votre passerelle vers le shopping mondial
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.1.0 <4.0.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # State Management
+  flutter_riverpod: ^2.5.1
+  riverpod_annotation: ^2.3.5
+
+  # Navigation
+  go_router: ^13.2.0
+
+  # Code Generation
+  freezed_annotation: ^2.4.1
+  json_annotation: ^4.9.0
+
+  # Supabase
+  supabase_flutter: ^2.5.6
+
+  # Firebase
+  firebase_core: ^3.2.0
+  firebase_messaging: ^15.1.0
+  flutter_local_notifications: ^17.2.1
+
+  # UI & Design
+  flutter_animate: ^4.5.0
+  cached_network_image: ^3.3.1
+  shimmer: ^3.0.0
+  lottie: ^3.1.2
+  flutter_svg: ^2.0.10+1
+  gap: ^3.0.1
+  badges: ^3.1.2
+  timeline_tile: ^2.0.0
+  fl_chart: ^0.68.0
+  smooth_page_indicator: ^1.1.0
+  carousel_slider: ^5.0.0
+  flutter_rating_bar: ^4.0.1
+  photo_view: ^0.15.0
+
+  # Forms & Validation
+  flutter_form_builder: ^9.3.0
+  form_builder_validators: ^11.0.0
+
+  # Storage & Preferences
+  shared_preferences: ^2.3.2
+  flutter_secure_storage: ^9.2.2
+
+  # Networking
+  dio: ^5.7.0
+  http: ^1.2.2
+
+  # Environment
+  flutter_dotenv: ^5.2.1
+
+  # Utils
+  intl: ^0.19.0
+  url_launcher: ^6.3.0
+  image_picker: ^1.1.2
+  permission_handler: ^11.3.1
+  connectivity_plus: ^6.0.3
+  package_info_plus: ^8.0.2
+  device_info_plus: ^10.1.2
+  uuid: ^4.4.2
+  logger: ^2.4.0
+  dartz: ^0.10.1
+  equatable: ^2.0.5
+  get_it: ^8.0.2
+
+  # Fonts
+  google_fonts: ^6.2.1
+
+  # Icons
+  cupertino_icons: ^1.0.8
+  material_design_icons_flutter: ^7.0.7296
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  # Code Generation
+  build_runner: ^2.4.12
+  freezed: ^2.5.2
+  json_serializable: ^6.8.0
+  riverpod_generator: ^2.4.3
+  custom_lint: ^0.6.4
+  riverpod_lint: ^2.3.13
+
+  flutter_lints: ^4.0.0
+
+flutter:
+  uses-material-design: true
+
+  assets:
+    - .env
+    - assets/images/
+    - assets/icons/
+    - assets/marketplaces/
+
