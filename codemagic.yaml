@@ -28,11 +28,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Create .env file
-        script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-
       - name: Set up code signing
         script: |
           keychain initialize
@@ -51,6 +46,8 @@ workflows:
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -101,11 +98,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Create .env file
-        script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-
       - name: Set up Android keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
@@ -123,6 +115,8 @@ workflows:
       - name: Build AAB
         script: |
           flutter build appbundle --release \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -164,11 +158,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Create .env file
-        script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-
       - name: Install dependencies
         script: flutter pub get
 
@@ -179,6 +168,8 @@ workflows:
         script: |
           flutter build web --release \
             --web-renderer canvaskit \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -209,11 +200,6 @@ workflows:
         - supabase_credentials
 
     scripts:
-      - name: Create .env file
-        script: |
-          echo "SUPABASE_URL=$SUPABASE_URL" > .env
-          echo "SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" >> .env
-
       - name: Install dependencies
         script: flutter pub get
 
@@ -221,13 +207,22 @@ workflows:
         script: flutter analyze --no-fatal-infos
 
       - name: Build iOS (no signing)
-        script: flutter build ios --debug --no-codesign
+        script: |
+          flutter build ios --debug --no-codesign \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
 
       - name: Build Android APK
-        script: flutter build apk --debug
+        script: |
+          flutter build apk --debug \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
 
       - name: Build Web
-        script: flutter build web --debug
+        script: |
+          flutter build web --debug \
+            --dart-define=SUPABASE_URL=$SUPABASE_URL \
+            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
 
     artifacts:
       - build/app/outputs/flutter-apk/app-debug.apk

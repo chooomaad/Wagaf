@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
@@ -9,11 +8,23 @@ import 'app/app.dart';
 import 'core/di/injection_container.dart';
 import 'shared/services/notification_service.dart';
 
+// Values injected at build time via --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
+const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  // Load environment variables
-  await dotenv.load(fileName: '.env');
+  if (_supabaseUrl.isEmpty) {
+    throw StateError(
+      'SUPABASE_URL not set. Build with --dart-define=SUPABASE_URL=https://your-project.supabase.co',
+    );
+  }
+  if (_supabaseAnonKey.isEmpty) {
+    throw StateError(
+      'SUPABASE_ANON_KEY not set. Build with --dart-define=SUPABASE_ANON_KEY=your-key',
+    );
+  }
 
   // System UI
   SystemChrome.setSystemUIOverlayStyle(
@@ -30,19 +41,9 @@ void main() async {
   // French locale for date formatting
   await initializeDateFormatting('fr');
 
-  // Supabase — validate required env vars before use
-  final supabaseUrl = dotenv.env['SUPABASE_URL'];
-  final supabaseAnonKey = dotenv.env['SUPABASE_ANON_KEY'];
-  if (supabaseUrl == null || supabaseUrl.isEmpty) {
-    throw StateError('SUPABASE_URL is missing from .env');
-  }
-  if (supabaseAnonKey == null || supabaseAnonKey.isEmpty) {
-    throw StateError('SUPABASE_ANON_KEY is missing from .env');
-  }
-
   await Supabase.initialize(
-    url: supabaseUrl,
-    publishableKey: supabaseAnonKey,
+    url: _supabaseUrl,
+    publishableKey: _supabaseAnonKey,
     realtimeClientOptions: const RealtimeClientOptions(
       logLevel: RealtimeLogLevel.info,
     ),
