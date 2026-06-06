@@ -46,7 +46,7 @@ dependencies:
   photo_view: ^0.15.0
 
   # Forms & Validation
-  flutter_form_builder: ^9.3.0
+  flutter_form_builder: ^10.0.0
   form_builder_validators: ^11.0.0
 
   # Storage & Preferences
