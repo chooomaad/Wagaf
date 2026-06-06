@@ -8,39 +8,61 @@ import 'app/app.dart';
 import 'core/di/injection_container.dart';
 import 'shared/services/notification_service.dart';
 
-// Values injected at build time via --dart-define=SUPABASE_URL=... --dart-define=SUPABASE_ANON_KEY=...
+// Injected at compile time:
+//   flutter build ... --dart-define=SUPABASE_URL=https://... --dart-define=SUPABASE_ANON_KEY=...
 const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
 const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
 
-  if (_supabaseUrl.isEmpty) {
-    throw StateError(
-      'SUPABASE_URL not set. Build with --dart-define=SUPABASE_URL=https://your-project.supabase.co',
-    );
+  Object? initError;
+  try {
+    await _initializeApp();
+  } catch (e, stack) {
+    debugPrint('[Wagaf] ⛔ Initialization error: $e');
+    debugPrint('[Wagaf] $stack');
+    initError = e;
   }
-  if (_supabaseAnonKey.isEmpty) {
+
+  if (initError != null) {
+    runApp(_ErrorApp(error: initError));
+    return;
+  }
+
+  runApp(const ProviderScope(child: WagafApp()));
+}
+
+Future<void> _initializeApp() async {
+  // ── Validate build-time env vars ──────────────────────────────────────────
+  if (_supabaseUrl.isEmpty || _supabaseAnonKey.isEmpty) {
     throw StateError(
-      'SUPABASE_ANON_KEY not set. Build with --dart-define=SUPABASE_ANON_KEY=your-key',
+      'Variables Supabase manquantes dans le build.\n\n'
+      'Sur Codemagic : vérifiez le groupe "supabase_credentials"\n'
+      '(SUPABASE_URL et SUPABASE_ANON_KEY doivent être définis).\n\n'
+      'En local : lancez avec\n'
+      '  flutter run \\\n'
+      '    --dart-define=SUPABASE_URL=https://xxx.supabase.co \\\n'
+      '    --dart-define=SUPABASE_ANON_KEY=your-key',
     );
   }
 
-  // System UI
+  // ── System UI ─────────────────────────────────────────────────────────────
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
       statusBarColor: Colors.transparent,
       statusBarIconBrightness: Brightness.dark,
     ),
   );
-  SystemChrome.setPreferredOrientations([
+  await SystemChrome.setPreferredOrientations([
     DeviceOrientation.portraitUp,
     DeviceOrientation.portraitDown,
   ]);
 
-  // French locale for date formatting
+  // ── Locale ────────────────────────────────────────────────────────────────
   await initializeDateFormatting('fr');
 
+  // ── Supabase ──────────────────────────────────────────────────────────────
   await Supabase.initialize(
     url: _supabaseUrl,
     publishableKey: _supabaseAnonKey,
@@ -49,20 +71,88 @@ void main() async {
     ),
   );
 
-  // Firebase (optional — skip if not configured yet)
+  // ── Firebase (optional) ───────────────────────────────────────────────────
   try {
     await Firebase.initializeApp();
     await NotificationService().initialize();
-  } catch (_) {
-    // Firebase not configured yet — run without FCM
+  } catch (e) {
+    debugPrint('[Wagaf] Firebase skipped: $e');
   }
 
-  // Dependency Injection
+  // ── Dependency Injection ──────────────────────────────────────────────────
   await initDependencies();
+}
 
-  runApp(
-    const ProviderScope(
-      child: WagafApp(),
-    ),
-  );
+/// Shown when [_initializeApp] throws before [runApp] is reached.
+/// Displays the real error so TestFlight testers and developers can act on it.
+class _ErrorApp extends StatelessWidget {
+  final Object error;
+  const _ErrorApp({required this.error});
+
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(
+      debugShowCheckedModeBanner: false,
+      home: Scaffold(
+        backgroundColor: const Color(0xFF0F172A),
+        body: SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(
+                  Icons.error_outline_rounded,
+                  color: Color(0xFFFF6B6B),
+                  size: 72,
+                ),
+                const SizedBox(height: 24),
+                const Text(
+                  'Erreur de démarrage',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 22,
+                    fontWeight: FontWeight.bold,
+                    decoration: TextDecoration.none,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 12),
+                const Text(
+                  "L'application n'a pas pu s'initialiser.",
+                  style: TextStyle(
+                    color: Color(0xFF94A3B8),
+                    fontSize: 14,
+                    decoration: TextDecoration.none,
+                  ),
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                Container(
+                  width: double.infinity,
+                  padding: const EdgeInsets.all(16),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF1E293B),
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(color: const Color(0xFF334155)),
+                  ),
+                  child: SelectableText(
+                    error.toString(),
+                    style: const TextStyle(
+                      color: Color(0xFFF87171),
+                      fontSize: 12,
+                      fontFamily: 'monospace',
+                      height: 1.6,
+                      decoration: TextDecoration.none,
+                    ),
+                    textAlign: TextAlign.left,
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+  }
 }

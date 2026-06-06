@@ -34,7 +34,6 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
   Future<void> _navigate() async {
     if (!mounted) return;
     final prefs = await SharedPreferences.getInstance();
-    await prefs.setBool('onboarding_completed', false);
     final onboardingDone = prefs.getBool('onboarding_completed') ?? false;
     if (!mounted) return;
     if (!onboardingDone) {
