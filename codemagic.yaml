@@ -16,7 +16,7 @@ workflows:
         - app_store_credentials   # APPLE_ID, APP_SPECIFIC_PASSWORD, APP_STORE_APPLE_ID
         - supabase_credentials    # SUPABASE_URL, SUPABASE_ANON_KEY
       vars:
-        BUNDLE_ID: com.sh7anly.app
+        BUNDLE_ID: com.wagaf.app
         XCODE_WORKSPACE: ios/Runner.xcworkspace
         XCODE_SCHEME: Runner
 

@@ -1,4 +1,4 @@
-# Sh7anly — International Shopping Assistant
+# Wagaf — International Shopping Assistant
 
 A Flutter application that lets users in Mauritania order products from international marketplaces (AliExpress, Amazon, Temu, Alibaba, etc.) with delivery tracked to their door.
 
@@ -36,46 +36,55 @@ A Flutter application that lets users in Mauritania order products from internat
 ### Installation
 
 ```bash
-git clone https://github.com/your-org/sh7anly.git
-cd sh7anly
-
-# Copy the environment template and fill in your credentials
-cp .env.example .env
-# Edit .env with your Supabase URL and anon key
+git clone https://github.com/chooomaad/Wagaf.git
+cd Wagaf
 
 flutter pub get
-flutter run
+flutter run \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-anon-key
 ```
 
 ### Environment variables
 
-Create a `.env` file at the project root (never commit this file):
+Values are injected at compile time via `--dart-define` (no `.env` file needed):
 
-```env
-SUPABASE_URL=https://your-project.supabase.co
-SUPABASE_ANON_KEY=your-anon-key
+```bash
+flutter run \
+  --dart-define=SUPABASE_URL=https://your-project.supabase.co \
+  --dart-define=SUPABASE_ANON_KEY=your-anon-key
 ```
 
-See `.env.example` for the template.
+In VS Code, add to `.vscode/launch.json`:
+```json
+{
+  "configurations": [{
+    "name": "Wagaf",
+    "request": "launch",
+    "type": "dart",
+    "toolArgs": [
+      "--dart-define=SUPABASE_URL=https://your-project.supabase.co",
+      "--dart-define=SUPABASE_ANON_KEY=your-anon-key"
+    ]
+  }]
+}
+```
 
 ### Supabase setup
 
 1. Create a new Supabase project
-2. Run the migrations in `supabase/migrations/` in order:
-   - `001_initial_schema.sql`
-   - `002_...`
-   - `005_fix_auth_profiles.sql`
+2. Run the migrations in `supabase/migrations/` in order
 3. Enable Row Level Security on all tables
 4. Configure Auth providers (Email/Password at minimum)
 
 ## Deployment
 
-### iOS (App Store)
+### iOS (App Store / TestFlight)
 
-Bundle ID: `com.sh7anly.app`
+Bundle ID: `com.wagaf.app`
 
-1. Create an App ID in Apple Developer Portal with bundle ID `com.sh7anly.app`
-2. Create a Distribution certificate and provisioning profile
+1. Create an App ID in Apple Developer Portal with bundle ID `com.wagaf.app`
+2. Create a Distribution certificate and App Store provisioning profile
 3. In Codemagic, create the `app_store_credentials` variable group:
    - `APP_STORE_CONNECT_KEY_IDENTIFIER`
    - `APP_STORE_CONNECT_API_KEY`
@@ -84,7 +93,7 @@ Bundle ID: `com.sh7anly.app`
 
 ### Android (Google Play)
 
-Application ID: `com.sh7anly.app`
+Application ID: `com.wagaf.app`
 
 1. Create a signing keystore and add to Codemagic's `keystore_credentials` group
 2. Create a Google Play service account and add JSON to `google_play_credentials` group
@@ -108,12 +117,10 @@ lib/
   features/
     auth/         — Login, register, password reset
     home/         — Home screen, URL analyzer
-    orders/       — Order list, detail, tracking
+    requests/     — Request list, detail, confirmation
     admin/        — Admin dashboard (orders/users/payments/notifications)
     profile/      — User profile, settings
   shared/         — Reusable widgets, services
-supabase/
-  migrations/     — Database migration scripts
 ```
 
 ## License

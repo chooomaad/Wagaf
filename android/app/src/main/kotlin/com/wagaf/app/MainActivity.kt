@@ -1,4 +1,4 @@
-package com.sh7anly.app
+package com.wagaf.app
 
 import io.flutter.embedding.android.FlutterActivity
 
