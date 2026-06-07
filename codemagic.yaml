@@ -13,12 +13,13 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - app_store_credentials   # APPLE_ID, APP_SPECIFIC_PASSWORD, APP_STORE_APPLE_ID
-        - supabase_credentials    # SUPABASE_URL, SUPABASE_ANON_KEY
+        - app_store_credentials   # APP_STORE_CONNECT_KEY_IDENTIFIER, APP_STORE_CONNECT_API_KEY, APP_STORE_CONNECT_ISSUER_ID
       vars:
         BUNDLE_ID: com.wagaf.app
         XCODE_WORKSPACE: ios/Runner.xcworkspace
         XCODE_SCHEME: Runner
+        # SUPABASE_URL and SUPABASE_ANON_KEY are added directly
+        # in Codemagic → App settings → Environment variables
 
     triggering:
       events:
@@ -32,13 +33,8 @@ workflows:
         script: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: Supabase credentials are missing!"
-            echo ""
-            echo "  Go to Codemagic → Your app → Environment variables"
-            echo "  and create a group named: supabase_credentials"
-            echo "  with these two variables:"
-            echo "    SUPABASE_URL      = https://xxxx.supabase.co"
-            echo "    SUPABASE_ANON_KEY = eyJhbGci..."
+            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
+            echo "  Add them in Codemagic → App settings → Environment variables"
             echo "══════════════════════════════════════════════════════════"
             exit 1
           fi
@@ -83,7 +79,7 @@ workflows:
       app_store_connect:
         auth: integration
         submit_to_testflight: true
-        submit_to_app_store: false   # Set to true when ready for public release
+        submit_to_app_store: false
 
       email:
         recipients:
@@ -105,7 +101,7 @@ workflows:
       groups:
         - google_play_credentials   # GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         - keystore_credentials      # CM_KEYSTORE, CM_KEY_ALIAS, CM_KEY_PASSWORD, CM_STORE_PASSWORD
-        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
+      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     triggering:
       events:
@@ -119,13 +115,8 @@ workflows:
         script: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: Supabase credentials are missing!"
-            echo ""
-            echo "  Go to Codemagic → Your app → Environment variables"
-            echo "  and create a group named: supabase_credentials"
-            echo "  with these two variables:"
-            echo "    SUPABASE_URL      = https://xxxx.supabase.co"
-            echo "    SUPABASE_ANON_KEY = eyJhbGci..."
+            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
+            echo "  Add them in Codemagic → App settings → Environment variables"
             echo "══════════════════════════════════════════════════════════"
             exit 1
           fi
@@ -172,7 +163,7 @@ workflows:
           failure: true
 
   # ───────────────────────────────────────────────────────────────────
-  # Web Release → build artifact (deploy manually or via hosting)
+  # Web Release
   # ───────────────────────────────────────────────────────────────────
   web-release:
     name: Web Release
@@ -181,8 +172,7 @@ workflows:
 
     environment:
       flutter: stable
-      groups:
-        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
+      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     triggering:
       events:
@@ -196,9 +186,8 @@ workflows:
         script: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: Supabase credentials are missing!"
-            echo "  Create group 'supabase_credentials' in Codemagic with:"
-            echo "    SUPABASE_URL  and  SUPABASE_ANON_KEY"
+            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
+            echo "  Add them in Codemagic → App settings → Environment variables"
             echo "══════════════════════════════════════════════════════════"
             exit 1
           fi
@@ -232,7 +221,7 @@ workflows:
           failure: true
 
   # ───────────────────────────────────────────────────────────────────
-  # Development build — manual trigger for testing
+  # Development build — manual trigger
   # ───────────────────────────────────────────────────────────────────
   dev-build:
     name: Dev Build (iOS + Android + Web)
@@ -243,17 +232,15 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      groups:
-        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
+      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     scripts:
       - name: Validate Supabase credentials
         script: |
           if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
             echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: Supabase credentials are missing!"
-            echo "  Create group 'supabase_credentials' in Codemagic with:"
-            echo "    SUPABASE_URL  and  SUPABASE_ANON_KEY"
+            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
+            echo "  Add them in Codemagic → App settings → Environment variables"
             echo "══════════════════════════════════════════════════════════"
             exit 1
           fi
