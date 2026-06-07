@@ -7,6 +7,7 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_sizes.dart';
 import '../../../../l10n/app_localizations.dart';
+import '../../../../shared/widgets/app_logo.dart';
 import '../providers/auth_provider.dart';
 
 class SplashScreen extends ConsumerStatefulWidget {
@@ -68,23 +69,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen>
               const Spacer(),
 
               // Logo
-              Container(
-                width: 100,
-                height: 100,
-                decoration: BoxDecoration(
-                  color: Colors.white.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                  border: Border.all(
-                    color: Colors.white.withValues(alpha: 0.3),
-                    width: 2,
-                  ),
-                ),
-                child: const Icon(
-                  Icons.shopping_bag_rounded,
-                  color: AppColors.white,
-                  size: 56,
-                ),
-              )
+              const AppLogo(size: 120)
                   .animate(controller: _controller)
                   .scale(
                     begin: const Offset(0.5, 0.5),

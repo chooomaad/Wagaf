@@ -14,6 +14,7 @@ import '../widgets/hero_section.dart';
 import '../widgets/link_input_card.dart';
 import '../widgets/how_it_works_section.dart';
 import '../../../../shared/widgets/marketplace_carousel.dart';
+import '../../../../shared/widgets/app_logo.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -144,20 +145,7 @@ class _AppBar extends StatelessWidget {
       titleSpacing: Tw.s4,
       title: Row(
         children: [
-          Container(
-            width: 34,
-            height: 34,
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
-                colors: [AppColors.primary, Color(0xFF008050)],
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-              ),
-              borderRadius: Tw.radiusMd,
-            ),
-            child: const Icon(Icons.shopping_bag_rounded,
-                color: Colors.white, size: 20),
-          ),
+          const AppLogo(size: 34),
           const SizedBox(width: Tw.s2),
           Text(
             AppStrings.appName,

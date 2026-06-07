@@ -7,6 +7,7 @@ import '../../../../core/constants/app_colors.dart';
 import '../../../../core/constants/app_strings.dart';
 import '../../../../l10n/app_localizations.dart';
 import '../../../../core/theme/app_tw.dart';
+import '../../../../shared/widgets/app_logo.dart';
 import '../../../../core/utils/validators.dart';
 import '../../../../shared/widgets/app_error_banner.dart';
 import '../../../../shared/widgets/custom_button.dart';
@@ -64,20 +65,7 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                 Center(
                   child: Column(
                     children: [
-                      Container(
-                        width: 80,
-                        height: 80,
-                        decoration: BoxDecoration(
-                          gradient: AppColors.primaryGradient,
-                          borderRadius: Tw.radius2xl,
-                          boxShadow: Tw.shadowMd,
-                        ),
-                        child: const Icon(
-                          Icons.shopping_bag_rounded,
-                          color: AppColors.white,
-                          size: 44,
-                        ),
-                      ),
+                      const AppLogo(size: 80),
                       const Gap(Tw.s4),
                       Text(
                         AppStrings.appName,
