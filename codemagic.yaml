@@ -18,8 +18,6 @@ workflows:
         BUNDLE_ID: com.wagaf.app
         XCODE_WORKSPACE: ios/Runner.xcworkspace
         XCODE_SCHEME: Runner
-        # SUPABASE_URL and SUPABASE_ANON_KEY are added directly
-        # in Codemagic → App settings → Environment variables
 
     triggering:
       events:
@@ -29,18 +27,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Validate Supabase credentials
-        script: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
-            echo "  Add them in Codemagic → App settings → Environment variables"
-            echo "══════════════════════════════════════════════════════════"
-            exit 1
-          fi
-          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
-          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
-
       - name: Set up code signing
         script: |
           keychain initialize
@@ -59,8 +45,6 @@ workflows:
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -101,7 +85,6 @@ workflows:
       groups:
         - google_play_credentials   # GCLOUD_SERVICE_ACCOUNT_CREDENTIALS
         - keystore_credentials      # CM_KEYSTORE, CM_KEY_ALIAS, CM_KEY_PASSWORD, CM_STORE_PASSWORD
-      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     triggering:
       events:
@@ -111,18 +94,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Validate Supabase credentials
-        script: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
-            echo "  Add them in Codemagic → App settings → Environment variables"
-            echo "══════════════════════════════════════════════════════════"
-            exit 1
-          fi
-          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
-          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
-
       - name: Set up Android keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
@@ -140,8 +111,6 @@ workflows:
       - name: Build AAB
         script: |
           flutter build appbundle --release \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -172,7 +141,6 @@ workflows:
 
     environment:
       flutter: stable
-      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     triggering:
       events:
@@ -182,18 +150,6 @@ workflows:
           include: true
 
     scripts:
-      - name: Validate Supabase credentials
-        script: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
-            echo "  Add them in Codemagic → App settings → Environment variables"
-            echo "══════════════════════════════════════════════════════════"
-            exit 1
-          fi
-          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
-          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
-
       - name: Install dependencies
         script: flutter pub get
 
@@ -204,8 +160,6 @@ workflows:
         script: |
           flutter build web --release \
             --web-renderer canvaskit \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -232,21 +186,8 @@ workflows:
       flutter: stable
       xcode: latest
       cocoapods: default
-      # SUPABASE_URL and SUPABASE_ANON_KEY come from app-level env vars
 
     scripts:
-      - name: Validate Supabase credentials
-        script: |
-          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
-            echo "══════════════════════════════════════════════════════════"
-            echo "  ERROR: SUPABASE_URL or SUPABASE_ANON_KEY is missing!"
-            echo "  Add them in Codemagic → App settings → Environment variables"
-            echo "══════════════════════════════════════════════════════════"
-            exit 1
-          fi
-          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
-          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
-
       - name: Install dependencies
         script: flutter pub get
 
@@ -254,22 +195,13 @@ workflows:
         script: flutter analyze --no-fatal-infos
 
       - name: Build iOS (no signing)
-        script: |
-          flutter build ios --debug --no-codesign \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
+        script: flutter build ios --debug --no-codesign
 
       - name: Build Android APK
-        script: |
-          flutter build apk --debug \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
+        script: flutter build apk --debug
 
       - name: Build Web
-        script: |
-          flutter build web --debug \
-            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
-            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
+        script: flutter build web --debug
 
     artifacts:
       - build/app/outputs/flutter-apk/app-debug.apk

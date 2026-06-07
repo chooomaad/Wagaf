@@ -5,13 +5,9 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:intl/date_symbol_data_local.dart';
 import 'app/app.dart';
+import 'core/config/supabase_config.dart';
 import 'core/di/injection_container.dart';
 import 'shared/services/notification_service.dart';
-
-// Injected at compile time:
-//   flutter build ... --dart-define=SUPABASE_URL=https://... --dart-define=SUPABASE_ANON_KEY=...
-const _supabaseUrl = String.fromEnvironment('SUPABASE_URL');
-const _supabaseAnonKey = String.fromEnvironment('SUPABASE_ANON_KEY');
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -34,19 +30,6 @@ void main() async {
 }
 
 Future<void> _initializeApp() async {
-  // ── Validate build-time env vars ──────────────────────────────────────────
-  if (_supabaseUrl.isEmpty || _supabaseAnonKey.isEmpty) {
-    throw StateError(
-      'Variables Supabase manquantes dans le build.\n\n'
-      'Sur Codemagic : vérifiez le groupe "supabase_credentials"\n'
-      '(SUPABASE_URL et SUPABASE_ANON_KEY doivent être définis).\n\n'
-      'En local : lancez avec\n'
-      '  flutter run \\\n'
-      '    --dart-define=SUPABASE_URL=https://xxx.supabase.co \\\n'
-      '    --dart-define=SUPABASE_ANON_KEY=your-key',
-    );
-  }
-
   // ── System UI ─────────────────────────────────────────────────────────────
   SystemChrome.setSystemUIOverlayStyle(
     const SystemUiOverlayStyle(
@@ -64,8 +47,8 @@ Future<void> _initializeApp() async {
 
   // ── Supabase ──────────────────────────────────────────────────────────────
   await Supabase.initialize(
-    url: _supabaseUrl,
-    publishableKey: _supabaseAnonKey,
+    url: SupabaseConfig.url,
+    publishableKey: SupabaseConfig.anonKey,
     realtimeClientOptions: const RealtimeClientOptions(
       logLevel: RealtimeLogLevel.info,
     ),
