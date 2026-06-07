@@ -28,6 +28,23 @@ workflows:
           include: true
 
     scripts:
+      - name: Validate Supabase credentials
+        script: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "══════════════════════════════════════════════════════════"
+            echo "  ERROR: Supabase credentials are missing!"
+            echo ""
+            echo "  Go to Codemagic → Your app → Environment variables"
+            echo "  and create a group named: supabase_credentials"
+            echo "  with these two variables:"
+            echo "    SUPABASE_URL      = https://xxxx.supabase.co"
+            echo "    SUPABASE_ANON_KEY = eyJhbGci..."
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
+          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
+
       - name: Set up code signing
         script: |
           keychain initialize
@@ -46,8 +63,8 @@ workflows:
       - name: Build iOS
         script: |
           flutter build ios --release --no-codesign \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -98,6 +115,23 @@ workflows:
           include: true
 
     scripts:
+      - name: Validate Supabase credentials
+        script: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "══════════════════════════════════════════════════════════"
+            echo "  ERROR: Supabase credentials are missing!"
+            echo ""
+            echo "  Go to Codemagic → Your app → Environment variables"
+            echo "  and create a group named: supabase_credentials"
+            echo "  with these two variables:"
+            echo "    SUPABASE_URL      = https://xxxx.supabase.co"
+            echo "    SUPABASE_ANON_KEY = eyJhbGci..."
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
+          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
+
       - name: Set up Android keystore
         script: |
           echo $CM_KEYSTORE | base64 --decode > /tmp/keystore.jks
@@ -115,8 +149,8 @@ workflows:
       - name: Build AAB
         script: |
           flutter build appbundle --release \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -158,6 +192,19 @@ workflows:
           include: true
 
     scripts:
+      - name: Validate Supabase credentials
+        script: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "══════════════════════════════════════════════════════════"
+            echo "  ERROR: Supabase credentials are missing!"
+            echo "  Create group 'supabase_credentials' in Codemagic with:"
+            echo "    SUPABASE_URL  and  SUPABASE_ANON_KEY"
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
+          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
+
       - name: Install dependencies
         script: flutter pub get
 
@@ -168,8 +215,8 @@ workflows:
         script: |
           flutter build web --release \
             --web-renderer canvaskit \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY \
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY" \
             --build-name=$(echo $CM_TAG | sed 's/v//') \
             --build-number=$PROJECT_BUILD_NUMBER
 
@@ -197,9 +244,22 @@ workflows:
       xcode: latest
       cocoapods: default
       groups:
-        - supabase_credentials
+        - supabase_credentials      # SUPABASE_URL, SUPABASE_ANON_KEY
 
     scripts:
+      - name: Validate Supabase credentials
+        script: |
+          if [ -z "$SUPABASE_URL" ] || [ -z "$SUPABASE_ANON_KEY" ]; then
+            echo "══════════════════════════════════════════════════════════"
+            echo "  ERROR: Supabase credentials are missing!"
+            echo "  Create group 'supabase_credentials' in Codemagic with:"
+            echo "    SUPABASE_URL  and  SUPABASE_ANON_KEY"
+            echo "══════════════════════════════════════════════════════════"
+            exit 1
+          fi
+          echo "✓ SUPABASE_URL      = ${SUPABASE_URL:0:35}..."
+          echo "✓ SUPABASE_ANON_KEY = ${SUPABASE_ANON_KEY:0:20}..."
+
       - name: Install dependencies
         script: flutter pub get
 
@@ -209,20 +269,20 @@ workflows:
       - name: Build iOS (no signing)
         script: |
           flutter build ios --debug --no-codesign \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
 
       - name: Build Android APK
         script: |
           flutter build apk --debug \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
 
       - name: Build Web
         script: |
           flutter build web --debug \
-            --dart-define=SUPABASE_URL=$SUPABASE_URL \
-            --dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY
+            "--dart-define=SUPABASE_URL=$SUPABASE_URL" \
+            "--dart-define=SUPABASE_ANON_KEY=$SUPABASE_ANON_KEY"
 
     artifacts:
       - build/app/outputs/flutter-apk/app-debug.apk
